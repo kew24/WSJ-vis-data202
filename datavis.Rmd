@@ -1,0 +1,58 @@
+---
+title: "YOUR TITLE HERE"
+author: "YOUR NAME HERE"
+date: "TODAY'S DATE HERE"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+```
+
+## Overview
+
+*Describe the visualization you are creating at a broad overview level. What is the claim
+you are trying to make with it? What kind of data are you working with? etc.*
+
+## Dataset
+
+*Your more detailed description of the dataset here. Where did it come from?
+What processing has happened to the data before you got it? etc.*
+
+```{r download-data}
+# Remove this chunk if your data is small enough that you can just check it
+# into the repo.
+
+# If not, uncomment and edit the following lines appropriately:
+# data_filename <- "data/data-file-name.csv" # or XLSX or whatever
+# 
+# if (!dir.exists("data"))
+#   dir.create("data")
+# if (!file.exists(data_filename)) {
+#   download.file(url = "https://the-data-url-goes-here",
+#                 destfile = data_filename)
+# }
+```
+
+
+```{r load-data}
+# your code to load the data here
+```
+
+*Describe the structure of the data--size, shape, level of granularity, etc.*
+
+## Wrangling
+
+*Describe, at a broad level, what you need to do to the data to make it into
+the form you need for the graph.*
+
+*Add code blocks, with appropriate names, for wrangling steps.*
+
+## Visualization
+
+*Vis code goes here*
+
+## Analysis
+
+*Analysis goes here.*
