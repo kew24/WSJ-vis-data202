@@ -42,6 +42,11 @@ if (!file.exists(data_filename)) {
 }
 ```
 
+```{r download-better-data}
+data_filename_age <- "data/covid_data.csv"
+
+```
+
 
 ```{r load-data}
 data <- read.csv('./data/covid_data.csv', na.strings = "", fileEncoding = "UTF-8-BOM")
@@ -50,7 +55,7 @@ knitr::kable(head(data, 2))
 
 > *Describe the structure of the data--size, shape, level of granularity, etc.*
 
-In this data, there are `r nrow(data)` rows with `r ncol(data)` columns. Each of these columns is: `r names(data)`.
+In this data, there are `r nrow(data)` rows with `r ncol(data)` columns. Each of these columns is: `r names(data)`. This is a fairly *tidy* dataset, as it is long, not wide, and because each row only contains one observation.
 
 
 ## Wrangling
@@ -63,6 +68,11 @@ the form you need for the graph.*
 ## Visualization
 
 *Vis code goes here*
+
+```{r}
+ggplot(data, mapping = aes(x = dateRep, y = cases)) +
+  geom_col(aes(fill = continentExp))
+```
 
 ## Analysis
 
