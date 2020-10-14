@@ -1,13 +1,14 @@
 ---
-title: "YOUR TITLE HERE"
-author: "YOUR NAME HERE"
-date: "TODAY'S DATE HERE"
+title: "HW06: COVID Vis Reproduction & Predictive Modeling"
+author: "Kaitlyn Westra"
+date: "14 October 2020"
 output: html_document
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
+library(utils)
 ```
 
 ## Overview
@@ -15,29 +16,32 @@ library(tidyverse)
 *Describe the visualization you are creating at a broad overview level. What is the claim
 you are trying to make with it? What kind of data are you working with? etc.*
 
+With this visualization, I am attempting to show the number of COVID cases in 17 European countries, broken down by specified age groups. Hopefully, we will be able to show the trends within each age group -- such as that younger individuals are responsible for more of the most recent COVID cases compared to the elderly people.
+
+The claim I'm trying to make with it comes from a [WSJ article](
+https://www.wsj.com/articles/europes-covid-fight-has-a-new-target-the-youth-11601553600). Specifically, the claim the article makes is that *"Younger people are driving the current surge in Covid-19 cases across Europe", supposedly due to parties and events with alcohol consumption.*
+
+The data I'll be working with comes from the European Surveilance System, which is part of the European Center for Disease Prevention and Control. Each data point consists of each country's daily case count, as well as some other metadata.
+
 ## Dataset
 
 *Your more detailed description of the dataset here. Where did it come from?
 What processing has happened to the data before you got it? etc.*
 
 ```{r download-data}
-# Remove this chunk if your data is small enough that you can just check it
-# into the repo.
+data_filename <- "data/covid_data.csv"
+url <- "https://opendata.ecdc.europa.eu/covid19/casedistribution/csv"
 
-# If not, uncomment and edit the following lines appropriately:
-# data_filename <- "data/data-file-name.csv" # or XLSX or whatever
-# 
-# if (!dir.exists("data"))
-#   dir.create("data")
-# if (!file.exists(data_filename)) {
-#   download.file(url = "https://the-data-url-goes-here",
-#                 destfile = data_filename)
-# }
+if (!dir.exists("data"))
+  dir.create("data")
+if (!file.exists(data_filename)) {
+  download.file(url = url, destfile = data_filename)
+}
 ```
 
 
 ```{r load-data}
-# your code to load the data here
+data <- read.csv('./data/covid_data.csv', na.strings = "", fileEncoding = "UTF-8-BOM")
 ```
 
 *Describe the structure of the data--size, shape, level of granularity, etc.*
