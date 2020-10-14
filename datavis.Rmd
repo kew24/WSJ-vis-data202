@@ -13,20 +13,23 @@ library(utils)
 
 ## Overview
 
-*Describe the visualization you are creating at a broad overview level. What is the claim
+> *Describe the visualization you are creating at a broad overview level. What is the claim
 you are trying to make with it? What kind of data are you working with? etc.*
 
 With this visualization, I am attempting to show the number of COVID cases in 17 European countries, broken down by specified age groups. Hopefully, we will be able to show the trends within each age group -- such as that younger individuals are responsible for more of the most recent COVID cases compared to the elderly people.
 
 The claim I'm trying to make with it comes from a [WSJ article](
-https://www.wsj.com/articles/europes-covid-fight-has-a-new-target-the-youth-11601553600). Specifically, the claim the article makes is that *"Younger people are driving the current surge in Covid-19 cases across Europe", supposedly due to parties and events with alcohol consumption.*
+https://www.wsj.com/articles/europes-covid-fight-has-a-new-target-the-youth-11601553600). Specifically, the claim the article makes is that **"Younger people are driving the current surge in Covid-19 cases across Europe", supposedly due to parties and events with alcohol consumption.**
 
-The data I'll be working with comes from the European Surveilance System, which is part of the European Center for Disease Prevention and Control. Each data point consists of each country's daily case count, as well as some other metadata.
+The data I'll be working with comes from The European Surveilance System (TESSy), which is part of the European Center for Disease Prevention and Control (ECDC). Each data point consists of each country's daily case count, as well as some other metadata.
 
 ## Dataset
 
-*Your more detailed description of the dataset here. Where did it come from?
-What processing has happened to the data before you got it? etc.*
+> *Your more detailed description of the dataset here. Where did it come from? What processing has happened to the data before you got it? etc.*
+
+As stated earlier, the (data)[https://www.ecdc.europa.eu/en/publications-data/download-todays-data-geographic-distribution-covid-19-cases-worldwide] comes from the TESSy of the ECDC. Each row represents a country on a given day, and includes information for that day on how many cases, deaths, and cumulative COVID counts over for 14 days for per 100,000. 
+
+Some information on how they collect and process COVID data can be found on (their website)[https://www.ecdc.europa.eu/en/covid-19/data-collection]. In short, the "a team of epidemiologists screens up to 500 relevant sources to collect the latest figures" from each of these countries, and this data is addeed to the database. It doesn't look like much other proceessing takes place, which is good because that means thee data is (and should be) fairly straightforward.
 
 ```{r download-data}
 data_filename <- "data/covid_data.csv"
@@ -42,9 +45,13 @@ if (!file.exists(data_filename)) {
 
 ```{r load-data}
 data <- read.csv('./data/covid_data.csv', na.strings = "", fileEncoding = "UTF-8-BOM")
+knitr::kable(head(data, 2))
 ```
 
-*Describe the structure of the data--size, shape, level of granularity, etc.*
+> *Describe the structure of the data--size, shape, level of granularity, etc.*
+
+In this data, there are `r nrow(data)` rows with `r ncol(data)` columns. Each of these columns is: `r names(data)`.
+
 
 ## Wrangling
 
