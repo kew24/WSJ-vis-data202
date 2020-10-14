@@ -66,11 +66,13 @@ In this data, there are `r nrow(data)` rows with `r ncol(data)` columns. Each of
 This data is close to the form I'll need it in for my graph. However, some minor changes are outlined below:
 
 - only include the 17 countries of interest  
-- group all ages < 15 together  
-- group all ages > 65 together  
-- change data type of `cases` & `deaths` to "int" (but recode '<=10' values first)  
+- change data type of `cases` to "int" (but recode '<=10' values first)  
 - change `Onset.week` to only the last two characters: the week number and reformat to number  
 - discard data before week 10  
+- remove unneeded columns  
+- join/bind(?) data based on shared information (Week 15 cases for 65+ should be summed)  
+- group all ages < 15 together  
+- group all ages > 65 together  
 
 ```{r exclude-countries}
 desired_countries <- c("Croatia", "Cyprus", "Czechia", "Denmark", "Estonia", "Finland",
@@ -83,41 +85,63 @@ data <- data %>%
 
 (? -- is there a better way to drop levels than just mutating with `factor`? I tried using `droplevels` but that wasn't seeming to work for me...)
 
+```{r retype-cases}
+data <- data %>%
+  mutate(
+    Cases = as.character(Cases),
+    Cases = if_else(Cases == '<=10', '1', Cases),
+    Cases = as.numeric(Cases)
+  )
+```
+
+```{r reformat-week}
+substrRight <- function(x, n){
+  substr(x, nchar(x)-n+1, nchar(x))
+}
+
+data <- data %>%
+  mutate(
+    Onset.week = as.character(Onset.week),
+    Week2020 = substrRight(Onset.week, 2),
+    Week2020 = as.numeric(Week2020)
+  )
+```
+
+  
+```{r exclude-early-data}
+too_early <- c("2019-W51", "2020-W01", "2020-W03", "2020-W04", "2020-W05", 
+               "2020-W06", "2020-W07", "2020-W08", "2020-W09", "-")
+data <- data %>%
+  filter(!(Onset.week %in% too_early)) %>%
+  mutate(Onset.week = factor(Onset.week))
+```
+
+
+```{r remove-columns}
+data <- data %>%
+  select(Week2020, Cases, Age.group)
+```
+
+```{r join-and-sum-data}
+#? Don't really know how to approach this...
+```
+
+
 ```{r group-ages}
-#? Don't really know how to approach this... how do I combine on age while matching age/country/gender/hopsitalization/etc?
+#? Don't really know how to approach this...
+#- group all ages < 15 together  
+#- group all ages > 65 together 
 ```
 
-```{r}
-data %>%
-  mutate(Cases = str(Cases))
-# 
-# data %>%
-#   mutate(
-#     Cases = case_when('<=10' ~ '5',
-#                       TRUE ~ Cases)
-#   )
-
-  # case_when(data$Cases == '<=10', data$Cases)
-  # if_else(data$Cases == '<=10', '5', Cases)
-  # mutate(Cases = int(Cases))
-```
-
-
-- change data type of `cases` & `deaths` to "int" (but recode '<=10' values first)  
-- change `Onset.week` to only the last two characters: the week number and reformat to number  
-- discard data before week 10  
-
-
-
-*Add code blocks, with appropriate names, for wrangling steps.*
 
 ## Visualization
 
 *Vis code goes here*
 
-```{r}
-# ggplot(data, mapping = aes(x = dateRep, y = cases)) +
-#   geom_col(aes(fill = continentExp))
+```{r plotting}
+ggplot(data, mapping = aes(x = Week2020, y = Cases, color = Age.group )) +
+  geom_line() +
+  theme_bw()
 ```
 
 ## Analysis
