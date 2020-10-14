@@ -9,6 +9,7 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(utils)
+library(magrittr)
 ```
 
 ## Overview
@@ -21,37 +22,37 @@ With this visualization, I am attempting to show the number of COVID cases in 17
 The claim I'm trying to make with it comes from a [WSJ article](
 https://www.wsj.com/articles/europes-covid-fight-has-a-new-target-the-youth-11601553600). Specifically, the claim the article makes is that **"Younger people are driving the current surge in Covid-19 cases across Europe", supposedly due to parties and events with alcohol consumption.**
 
-The data I'll be working with comes from The European Surveilance System (TESSy), which is part of the European Center for Disease Prevention and Control (ECDC). Each data point consists of each country's daily case count, as well as some other metadata.
+The data I'll be working with comes from The European Surveilance System (TESSy), which is part of the European Center for Disease Prevention and Control (ECDC). Each data point consists of each country's weekly cases and deaths, for a given age group, gender, hospitalization status, intensive care status, and outcome. 
 
 ## Dataset
 
 > *Your more detailed description of the dataset here. Where did it come from? What processing has happened to the data before you got it? etc.*
 
-As stated earlier, the (data)[https://www.ecdc.europa.eu/en/publications-data/download-todays-data-geographic-distribution-covid-19-cases-worldwide] comes from the TESSy of the ECDC. Each row represents a country on a given day, and includes information for that day on how many cases, deaths, and cumulative COVID counts over for 14 days for per 100,000. 
+As stated earlier, the data comes from the ECDC's (COVID-19 Situation Dashboard)[https://qap.ecdc.europa.eu/public/extensions/covid-19/covid-19-mobile.html#enhanced-surveillance-tab]. Each row represents a group of people that all have the same country, age group, gender, hospitalization status, intensive care status, and outcome. This group of people's case number and death number is recorded.
 
-Some information on how they collect and process COVID data can be found on (their website)[https://www.ecdc.europa.eu/en/covid-19/data-collection]. In short, the "a team of epidemiologists screens up to 500 relevant sources to collect the latest figures" from each of these countries, and this data is addeed to the database. It doesn't look like much other proceessing takes place, which is good because that means thee data is (and should be) fairly straightforward.
+Some information on how they collect and process COVID data can be found on (their website)[https://www.ecdc.europa.eu/en/covid-19/data-collection]. In short, the "a team of epidemiologists screens up to 500 relevant sources to collect the latest figures" from each country, and this data is added to the database. To get the data I'm working with, they have aggregated individuals based on their shared characteristics (age, country, gender, other statuses) and reported the counts.
 
-```{r download-data}
-data_filename <- "data/covid_data.csv"
-url <- "https://opendata.ecdc.europa.eu/covid19/casedistribution/csv"
-
-if (!dir.exists("data"))
-  dir.create("data")
-if (!file.exists(data_filename)) {
-  download.file(url = url, destfile = data_filename)
-}
+```{r download-data, include=F, eval=F}
+# data_filename <- "data/covid_data.csv"
+# url <- "https://opendata.ecdc.europa.eu/covid19/casedistribution/csv"
+# 
+# if (!dir.exists("data"))
+#   dir.create("data")
+# if (!file.exists(data_filename)) {
+#   download.file(url = url, destfile = data_filename)
+# }
 ```
 
-```{r download-better-data}
-data_filename_age <- "data/covid_data.csv"
-
+```{r load-data, include=F, eval=F}
+# data_old <- read.csv('./data/covid_data.csv', na.strings = "", fileEncoding = "UTF-8-BOM")
+# knitr::kable(head(data_old, 2))
 ```
 
-
-```{r load-data}
-data <- read.csv('./data/covid_data.csv', na.strings = "", fileEncoding = "UTF-8-BOM")
-knitr::kable(head(data, 2))
+```{r download-age-data}
+data_filename_age <- "data/enhanced_surveillance_data.CSV"
+data <- read.csv(data_filename_age)
 ```
+
 
 > *Describe the structure of the data--size, shape, level of granularity, etc.*
 
@@ -60,8 +61,53 @@ In this data, there are `r nrow(data)` rows with `r ncol(data)` columns. Each of
 
 ## Wrangling
 
-*Describe, at a broad level, what you need to do to the data to make it into
-the form you need for the graph.*
+> *Describe, at a broad level, what you need to do to the data to make it into the form you need for the graph.*
+
+This data is close to the form I'll need it in for my graph. However, some minor changes are outlined below:
+
+- only include the 17 countries of interest  
+- group all ages < 15 together  
+- group all ages > 65 together  
+- change data type of `cases` & `deaths` to "int" (but recode '<=10' values first)  
+- change `Onset.week` to only the last two characters: the week number and reformat to number  
+- discard data before week 10  
+
+```{r exclude-countries}
+desired_countries <- c("Croatia", "Cyprus", "Czechia", "Denmark", "Estonia", "Finland",
+                       "Germany", "Iceland", "Ireland", "Latvia", "Luxembourg", "Malta",
+                       "Netherlands", "Norway", "Poland", "Portugal", "Sweden")
+data <- data %>%
+  filter(Reporting.country %in% desired_countries) %>%
+  mutate(Reporting.country = factor(Reporting.country))
+```
+
+(? -- is there a better way to drop levels than just mutating with `factor`? I tried using `droplevels` but that wasn't seeming to work for me...)
+
+```{r group-ages}
+#? Don't really know how to approach this... how do I combine on age while matching age/country/gender/hopsitalization/etc?
+```
+
+```{r}
+data %>%
+  mutate(Cases = str(Cases))
+# 
+# data %>%
+#   mutate(
+#     Cases = case_when('<=10' ~ '5',
+#                       TRUE ~ Cases)
+#   )
+
+  # case_when(data$Cases == '<=10', data$Cases)
+  # if_else(data$Cases == '<=10', '5', Cases)
+  # mutate(Cases = int(Cases))
+```
+
+
+- change data type of `cases` & `deaths` to "int" (but recode '<=10' values first)  
+- change `Onset.week` to only the last two characters: the week number and reformat to number  
+- discard data before week 10  
+
+
 
 *Add code blocks, with appropriate names, for wrangling steps.*
 
@@ -70,8 +116,8 @@ the form you need for the graph.*
 *Vis code goes here*
 
 ```{r}
-ggplot(data, mapping = aes(x = dateRep, y = cases)) +
-  geom_col(aes(fill = continentExp))
+# ggplot(data, mapping = aes(x = dateRep, y = cases)) +
+#   geom_col(aes(fill = continentExp))
 ```
 
 ## Analysis
