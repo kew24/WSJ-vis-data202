@@ -70,7 +70,7 @@ This data is close to the form I'll need it in for my graph. However, some minor
 - change `Onset.week` to only the last two characters: the week number and reformat to number  
 - discard data before week 10  
 - remove unneeded columns  
-- join/bind(?) data based on shared information (Week 15 cases for 65+ should be summed)  
+- join/bind(?) data based on shared information (e.g., Week 15 cases for 65+ should be summed)  
 - group all ages < 15 together  
 - group all ages > 65 together  
 
@@ -100,8 +100,9 @@ substrRight <- function(x, n){
 }
 
 data <- data %>%
+  mutate(Onset.week = as.character(Onset.week)) %>%
+  filter(Onset.week != "-") %>%
   mutate(
-    Onset.week = as.character(Onset.week),
     Week2020 = substrRight(Onset.week, 2),
     Week2020 = as.numeric(Week2020)
   )
@@ -123,6 +124,7 @@ data <- data %>%
 ```
 
 ```{r join-and-sum-data}
+#(join & sum data)
 #? Don't really know how to approach this...
 ```
 
@@ -136,13 +138,36 @@ data <- data %>%
 
 ## Visualization
 
-*Vis code goes here*
 
 ```{r plotting}
 ggplot(data, mapping = aes(x = Week2020, y = Cases, color = Age.group )) +
   geom_line() +
-  theme_bw()
+  theme_bw() +
+  labs(title = "Confirmed Covid-19 cases in 17 European countries \nby age group",
+       y = "", x = "WEEKS INTO 2020", color = "",
+       caption = "Note: Countries include Croatia, Cyprus, Czech republic, Denmark, Estonia, Finland, Germany, \nIceland, Ireland, Latvia, Luxembourg, Malta, Netherlands, Norway, Poland, Portugal and Sweden \nSource: European Surveillance System, part of the European Center for Disease Prevention and Control") +
+  theme(plot.caption = element_text(hjust = 0),
+        plot.title = element_text(face = "bold"))
 ```
+
+Ok, I'm obviously not finished yet -- but I've got a good start on this, and that's all I can do for now. Next, I'd like to do the things that were unfinished above (join & sum, then group ages). Besides these wrangling tasks, I'm also hoping to figure out how to best show the lines (hopefully `geom_line` would just work once I complete the wrangling tasks), match the colors using custom hex values from the original graph, specify the gridlines to match the original graph
+
+Additionally, it's kind of scaring me that there doesn't seem to be a huge spike around Week 15. The viz I'm copying shows this, so that's a bit concerning that my data doesn't seem to have this. Hopefully fixing those other things mentioned above would magically solve this problem, too? Otherwise, I can look into the potential of missing data... :(
+
+To demonstrate the lack of a spike, here's my plot, but with bars...
+
+```{r plotting-bars}
+ggplot(data, mapping = aes(x = Week2020, y = Cases, fill = Age.group )) +
+  geom_col(position = "dodge") +
+  theme_bw() +
+  labs(title = "Confirmed Covid-19 cases in 17 European countries \nby age group",
+       y = "", x = "WEEKS INTO 2020", fill = "", 
+       caption = "Note: Countries include Croatia, Cyprus, Czech republic, Denmark, Estonia, Finland, Germany, \nIceland, Ireland, Latvia, Luxembourg, Malta, Netherlands, Norway, Poland, Portugal and Sweden \nSource: European Surveillance System, part of the European Center for Disease Prevention and Control") +
+  theme(plot.caption = element_text(hjust = 0),
+        plot.title = element_text(face = "bold"))
+```
+
+
 
 ## Analysis
 
