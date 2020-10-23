@@ -31,9 +31,9 @@ The data I'll be working with comes from The European Surveilance System (TESSy)
 
 > *Your more detailed description of the dataset here. Where did it come from? What processing has happened to the data before you got it? etc.*
 
-As stated earlier, the data comes from the ECDC's (COVID-19 Situation Dashboard)[https://qap.ecdc.europa.eu/public/extensions/covid-19/covid-19-mobile.html#enhanced-surveillance-tab]. Each row represents a group of people that all have the same country, age group, gender, hospitalization status, intensive care status, and outcome. This group of people's case number and death number is recorded.
+As stated earlier, the data comes from the ECDC's [COVID-19 Situation Dashboard](https://qap.ecdc.europa.eu/public/extensions/covid-19/covid-19-mobile.html#enhanced-surveillance-tab). Each row represents a group of people that all have the same country, age group, gender, hospitalization status, intensive care status, and outcome. This group of people's case number and death number is recorded.
 
-Some information on how they collect and process COVID data can be found on (their website)[https://www.ecdc.europa.eu/en/covid-19/data-collection]. In short, the "a team of epidemiologists screens up to 500 relevant sources to collect the latest figures" from each country, and this data is added to the database. To get the data I'm working with, they have aggregated individuals based on their shared characteristics (age, country, gender, other statuses) and reported the counts.
+Some information on how they collect and process COVID data can be found on [their website](https://www.ecdc.europa.eu/en/covid-19/data-collection). In short, the "a team of epidemiologists screens up to 500 relevant sources to collect the latest figures" from each country, and this data is added to the database. To get the data I'm working with, they have aggregated individuals based on their shared characteristics (age, country, gender, other statuses) and reported the counts.
 
 ```{r download-data, include=F, eval=F}
 # data_filename <- "data/covid_data.csv"
