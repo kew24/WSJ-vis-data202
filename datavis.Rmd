@@ -53,7 +53,7 @@ Some information on how they collect and process COVID data can be found on [the
 
 ```{r download-age-data}
 data_filename_age <- "data/enhanced_surveillance_data.CSV"
-data <- read.csv(data_filename_age)
+data_raw <- read.csv(data_filename_age)
 ```
 
 
@@ -82,7 +82,7 @@ This data is close to the form I'll need it in for my graph. However, some minor
 desired_countries <- c("Croatia", "Cyprus", "Czechia", "Denmark", "Estonia", "Finland",
                        "Germany", "Iceland", "Ireland", "Latvia", "Luxembourg", "Malta",
                        "Netherlands", "Norway", "Poland", "Portugal", "Sweden")
-data <- data %>%
+data_countries <- data_raw %>%
   filter(Reporting.country %in% desired_countries) %>%
   mutate(Reporting.country = factor(Reporting.country))
 ```
@@ -91,7 +91,7 @@ data <- data %>%
 
 ```{r retype-cases}
 # Retype cases
-data <- data %>%
+data_format_cases <- data_countries %>%
   mutate(
     Cases = as.character(Cases),
     Cases = if_else(Cases == '<=10', '1', Cases),
@@ -105,7 +105,7 @@ substrRight <- function(x, n){
   substr(x, nchar(x)-n+1, nchar(x))
 }
 
-data <- data %>%
+data_format_week <- data_format_cases %>%
   mutate(Onset.week = as.character(Onset.week)) %>%
   filter(Onset.week != "-") %>%
   mutate(
@@ -119,7 +119,7 @@ data <- data %>%
 # Exclude early data
 too_early <- c("2019-W51", "2020-W01", "2020-W03", "2020-W04", "2020-W05",
                "2020-W06", "2020-W07", "2020-W08", "2020-W09", "-")
-data <- data %>%
+data_exclude_early <- data_format_week %>%
   filter(!(Onset.week %in% too_early)) %>%
   mutate(Onset.week = factor(Onset.week))
 ```
@@ -127,7 +127,7 @@ data <- data %>%
 
 ```{r remove-columns}
 # Remove unneeded columns
-data <- data %>%
+data <- data_exclude_early %>%
   select(Week2020, Cases, Age.group)
 ```
 
@@ -252,4 +252,56 @@ Aside from color, a design choice that the original visualization made was the g
 Another design choice made here was the decision to use a *line graph*, showing cases over time. Alternatively, a side-by-side bar graph `geom_col(position = 'dodge')` would've been made, with a set of 5 bars for each week, each individual bar representing an age group at the given week. However, I am glad WSJ decided to use a line graph -- not only does it seem to be the COVID plotting convention, but it also is uncluttered, easy to read, and allows for simple comparisons.
 
 One last design choice that I'll mention here is that the y-axis is unlabelled. Joe mentioned this as a response to my forum post, and said that it "makes it difficult to understand upon a quick glance." I initially disagreed with him -- I thought the lack of a y-axis label made the graph look cleaner and I figured it was unnecessary. The title already includes the basics of the y-label: "Confirmed Covid-19 cases." With this title, the only thing missing from a y-axis label would be the units. The question then is: should the y units be included or not? Upon closer inspection, I'm realizing that either way would be valuable. If the goal is to simply compare COVID cases between age groups over time, then it's not imperative that the units of cases be reported. Yet, if we want as much clarity and insight (even unrelated to the direct aim of the graph) as possible, then I think it'd be beneficial to include a units label. Also, as Joe seemed to imply, some people don't read titles and skip directly to the graph itself, looking for axis labels to provide understanding. Because of this, it is maybe a better idea to include what is being measured (confirmed COVID-19 cases) on the axis, even if it appears a little more cluttered.
+
+
+## Trying to fix my "missing data" problem...
+
+#### Recreate Prof. Arnold's Bar Graph
+
+Alright, so these are the names of my datasets as I go through each step in my wrangling workflow: 
+data_raw, data_countries, data_format_cases, data_format_week, data_exclude_early, data
+
+I'll try to recreate Prof. Arnold's plot he sent me:
+
+```{r plots-count-week, fig.width=4, fig.height=4}
+
+make_arnold_plot <- function(dataset){
+  dataset %>%
+    filter(Cases != 0) %>%
+    group_by(Onset.week) %>%
+    count() %>%
+    ggplot(aes(y = Onset.week, x = n)) +
+      geom_col() +
+      labs(title = deparse(substitute(dataset))) +
+      theme(axis.text.y = element_blank())
+}
+p1 <- print(make_arnold_plot(data_raw))
+p2 <- print(make_arnold_plot(data_countries))
+p3 <- print(make_arnold_plot(data_format_cases))
+p4 <- print(make_arnold_plot(data_format_week))
+p5 <- print(make_arnold_plot(data_exclude_early))
+p6 <- data %>%
+      filter(Cases != 0) %>%
+      mutate(Week2020 = as.factor(Week2020)) %>%
+      group_by(Week2020) %>%
+      count() %>%
+      ggplot(aes(y = Week2020, x = n)) +
+        geom_col() +
+        labs(title = deparse(substitute(data))) #+
+        #theme(axis.text.y = element_blank())
+gridExtra::grid.arrange(p1,p2,p3,p4,p5,p6)
+```
+
+None of these seems to match what his plot looked like... hmmm...
+
+#### Look @ data in my countries
+
+Is it possible that onset.week isn't recorded or something? Let's check: 
+
+```{r}
+#data_raw, data_countries, data_format_cases, data_format_week, data_exclude_early, data
+
+
+```
+
 
