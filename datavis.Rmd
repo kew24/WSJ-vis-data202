@@ -144,18 +144,18 @@ Unfortunately, after all these steps and attempting to recreate the visualizatio
 df <- c()
 df$Week <- c(10:37, 10:37, 10:37, 10:37, 10:37)
 df$Age <- rep(c('25-49', '65+', '15-24', '50-64', '<15'), each=28)
-df$Case <- c(0, 5000, 13000, 20000, 21000, 18000,
+df$Case <- c(0, 5000, 13000, 20000, 21000, 19000,
              15000, 12000, 8000, 7500, 6000,
              5200, 5500, 6000, 6500, 7500,
              7300, 5800, 5000, 5100, 5300,
              6800, 8800, 11000, 11500, 11000,
              12500, 10500, #end of 25-49
-             0, 1000, 6000, 15000, 18500, 16000, #15
+             0, 1000, 6000, 15000, 18500, 16500, #15
              13000, 11000, 7000, 5050, 4000, #@20
              3000, 2500, 2000, 1800, 1600, 
              1800, 1300, 1400, 1200, 1550,
-             1300, 1650, 1800, 1600, 1700,
-             2500, 2400, #end of 65+
+             1500, 1850, 2000, 1800, 1850,
+             2700, 2500, #end of 65+
              0, 1000, 3000, 4500, 5000, 4400,
              3700, 2800, 2000, 1800, 1550,
              1300, 1400, 1550, 1900, 2500, #25
@@ -167,20 +167,41 @@ df$Case <- c(0, 5000, 13000, 20000, 21000, 18000,
              3400, 3500, 3550, 3600, 4100,
              3900, 2500, 2000, 1800, 2000,
              2500, 3900, 4500, 4300, 4000,
-             4800, 4600,
-             rep(0, each = 28))
+             4800, 4600, #end of 50-64!
+             0, 500, 1300, 1700, 1800, 1600,
+             1100, 1150, 1000, 900, 850,
+             970, 950, 955, 1000, 1300,
+             1050, 990, 1030, 1080, 1100, 
+             1700, 2000, 2500, 2350, 2000,
+             2550, 2100) #<15
 df <- data.frame(df)
 ```
 
-```{r redo-graph}
+```{r redo-graph, fig.width=6.6, fig.height=6}
 ggplot(df, mapping = aes(x = Week, y = Case, color = Age )) +
-  geom_line() +
+  geom_line(size = 1.3) +
+  scale_color_manual(values=c("#C13F3F", #red
+                              "#A0CAEB", #blue
+                              "#DEDABC", #beige
+                              "#000000",  #black
+                              "#BEBEBE" #grey
+                              ),
+                     breaks=c("25-49", "15-24", "50-64", "65+", "<15")) +
   theme_bw() +
-  labs(title = "Confirmed Covid-19 cases in 17 European countries \nby age group",
+  scale_x_continuous(breaks = seq(10, 35, 5), minor_breaks = 0) +
+  scale_y_continuous(labels = scales::comma, minor_breaks = 0) +
+  labs(title = "Confirmed Covid-19 cases in 17 European\ncountries by age group",
        y = "", x = "WEEKS INTO 2020", color = "",
        caption = "Note: Countries include Croatia, Cyprus, Czech Republic, Denmark, Estonia, Finland, Germany, \nIceland, Ireland, Latvia, Luxembourg, Malta, Netherlands, Norway, Poland, Portugal and Sweden \nSource: European Surveillance System, part of the European Center for Disease Prevention and Control") +
+  coord_cartesian(ylim = c(950, 25000)) +
   theme(plot.caption = element_text(hjust = 0),
-        plot.title = element_text(face = "bold"))
+        plot.title = element_text(face = "bold", size = 20),
+        legend.text = element_text(size = 14),
+        axis.title.x = element_text(size = 14),
+        panel.grid.major.x = element_blank(),
+        axis.text = element_text(size = 14)
+        )
+  
 ```
 
 
@@ -192,9 +213,17 @@ A design choice made here was the decision to use a *line graph*, showing cases 
 ```{r bar-graph}
 ggplot(df, mapping = aes(x = Week, y = Case, fill = Age )) +
     geom_col(position = "dodge") +
+    scale_fill_manual(values=c("#C13F3F", #red
+                                "#A0CAEB", #blue
+                                "#DEDABC", #beige
+                                "#000000",  #black
+                                "#BEBEBE" #grey
+                                ),
+                       breaks=c("25-49", "15-24", "50-64", "65+", "<15")) +
+    theme_bw() +
     theme_bw() +
     labs(title = "Confirmed Covid-19 cases in 17 European countries \nby age group",
-       y = "", x = "WEEKS INTO 2020", color = "",
+       y = "", x = "WEEKS INTO 2020", fill = "",
        caption = "Note: Countries include Croatia, Cyprus, Czech Republic, Denmark, Estonia, Finland, Germany, \nIceland, Ireland, Latvia, Luxembourg, Malta, Netherlands, Norway, Poland, Portugal and Sweden \nSource: European Surveillance System, part of the European Center for Disease Prevention and Control") +
   theme(plot.caption = element_text(hjust = 0),
         plot.title = element_text(face = "bold"))
