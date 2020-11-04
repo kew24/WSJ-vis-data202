@@ -1,7 +1,7 @@
 ---
 title: "HW06: COVID Vis Reproduction & Predictive Modeling"
 author: "Kaitlyn Westra"
-date: "20 October 2020"
+date: "04 November 2020"
 output: html_document
 ---
 
@@ -14,20 +14,29 @@ library(magrittr)
 
 ## Overview
 
-> *Describe the visualization you are creating at a broad overview level. What is the claim you are trying to make with it? What kind of data are you working with? etc.*
+> *Introduce the article you’ve found and the specific visualization you’re replicating.*
 
-With this visualization, I am attempting to show the number of COVID cases in 17 European countries, broken down by specified age groups. Hopefully, we will be able to show the trends within each age group -- such as that younger individuals are responsible for more of the most recent COVID cases compared to the elderly people.
+A [Wall Street Journal article](https://www.wsj.com/articles/europes-covid-fight-has-a-new-target-the-youth-11601553600 ), published on October 1, 2020, detailed the recent rise of COVID-19 cases in Europe. Compared to the earlier waves, recent cases seem to impact younger people. The authors pointed out that much of the spread seems to be due to parties, public gatherings, and other events where alcohol consumption takes place, leading governments to enact stricter guidelines.
 
-The claim I'm trying to make with it comes from a [WSJ article](
-https://www.wsj.com/articles/europes-covid-fight-has-a-new-target-the-youth-11601553600). Specifically, the claim the article makes is that **"Younger people are driving the current surge in Covid-19 cases across Europe", supposedly due to parties and events with alcohol consumption.**
+The WSJ visualization, below, attempts to make the claim that **"younger people are driving the current surge in Covid-19 cases across Europe", supposedly due to parties and events with alcohol consumption.**
 
 ```{r my-screenshot, echo=FALSE}
 knitr::include_graphics("./Europe COVID Age.png")
 ```
 
-The data I'll be working with comes from The European Surveilance System (TESSy), which is part of the European Center for Disease Prevention and Control (ECDC). Each data point consists of each country's weekly cases and deaths, for a given age group, gender, hospitalization status, intensive care status, and outcome. A somewhat interactive dashboard of this data can be found on [the ECDC's website](https://qap.ecdc.europa.eu/public/extensions/covid-19/covid-19-mobile.html#enhanced-surveillance-tab).
+
+## Design
+
+The visualization chosen to display this data is a line graph, with the x-axis showing the 2020 Week Number, and the y-axis showing the number of cases in that week. The authors probably chose a line graph because it clearly shows the trend in cases over time, which makes it easy for the general viewer to understand. Besides the variables on the axes, the only other variable shown is the age grouping, which is displayed as the line color. This retinal variable of color was probably chosen because it simply and clearly breaks up the overall line into these distinct age categories. The specific color choices of red for the 25-49 age group, and black for the 65+ age group makes sense too, as those colors are the darkest / most saturated, allowing the viewer to make easy comparisons with those two data subsets.
+
+Overall, the visual is effective in making most of its claim. From the viewer's perspective, because the red line has similar values to the black (65+) and beige (50-64) lines during weeks 10 - 17, it seems like it should follow this same trend in recent weeks as well. Yet this is not the case, and the fact that the red line is higher than the others in recent weeks makes this visualization pretty effective at "proving" its claim that young people make up recent Covid cases. However, I don't necessarily see a direct connection to parties and large gatherings from this data, and I think additional data would be needed to "prove" this part of its claim.
+
+Though some parts of the claim are questionable, the graph effectively demonstrates that the make up of the age groups contributing towards COVID cases has changed over time, with people aged 25-49 making up the the majority of recent cases, as opposed to a more equal contribution in previous weeks. The choice to simply show these three variables -- week number, case count, and age group -- display the desired trend cleanly, without cluttering the rest of the graph with frivolous information. Additionally, this graph generally seemed avoid the common visualization pitfalls that were pointed out in [Claus Wilke's book](https://clauswilke.com/dataviz/), and I liked many of the design choices that were made. Even the color choices were well chosen, as the color differentiation held up in the anomalous trichromacy and dichromatic views of a color blindness simulator. 
 
 ## Dataset
+
+The data I'll be working with comes from The European Surveillance System (TESSy), which is part of the European Center for Disease Prevention and Control (ECDC). Each data point consists of each country's weekly cases and deaths, for a given age group, gender, hospitalization status, intensive care status, and outcome. A somewhat interactive dashboard of this data can be found on [the ECDC's website](https://qap.ecdc.europa.eu/public/extensions/covid-19/covid-19-mobile.html#enhanced-surveillance-tab).
+
 
 > *Your more detailed description of the dataset here. Where did it come from? What processing has happened to the data before you got it? etc.*
 
