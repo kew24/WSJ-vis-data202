@@ -1,66 +1,55 @@
----
-title: "COVID Vis Reproduction & Predictive Modeling"
-author: "Kaitlyn Westra"
-date: "04 November 2020"
-output: 
-  html_document: default
-  github_document: default
----
+COVID Vis Reproduction & Predictive Modeling
+================
+Kaitlyn Westra
+04 November 2020
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-library(tidyverse)
-library(utils)
-library(magrittr)
-```
+Overview
+--------
 
-## Overview
-
-A [Wall Street Journal article](https://www.wsj.com/articles/europes-covid-fight-has-a-new-target-the-youth-11601553600 ), published on October 1, 2020, detailed the recent rise of COVID-19 cases in Europe. Compared to the earlier waves, recent cases seem to impact younger people. The authors pointed out that much of the spread seems to be due to parties, public gatherings, and other events where alcohol consumption takes place, leading governments to enact stricter guidelines.
+A [Wall Street Journal article](https://www.wsj.com/articles/europes-covid-fight-has-a-new-target-the-youth-11601553600), published on October 1, 2020, detailed the recent rise of COVID-19 cases in Europe. Compared to the earlier waves, recent cases seem to impact younger people. The authors pointed out that much of the spread seems to be due to parties, public gatherings, and other events where alcohol consumption takes place, leading governments to enact stricter guidelines.
 
 The WSJ visualization, below, attempts to make the claim that **"younger people are driving the current surge in Covid-19 cases across Europe", supposedly due to parties and events with alcohol consumption.**
 
-```{r my-screenshot, echo=FALSE}
-knitr::include_graphics("./Europe COVID Age.png")
-```
+<img src="./Europe COVID Age.png" width="1062" />
 
-
-## Design
+Design
+------
 
 The visualization chosen to display this data is a line graph, with the x-axis showing the 2020 Week Number, and the y-axis showing the number of cases in that week. The authors probably chose a line graph because it clearly shows the trend in cases over time, which makes it easy for the general viewer to understand. Besides the variables on the axes, the only other variable shown is the age grouping, which is displayed as the line color. This retinal variable of color was probably chosen because it simply and clearly breaks up the overall line into these distinct age categories. The specific color choices of red for the 25-49 age group, and black for the 65+ age group makes sense too, as those colors are the darkest / most saturated, allowing the viewer to make easy comparisons with those two data subsets.
 
 Overall, the visual is effective in making most of its claim. From the viewer's perspective, because the red line has similar values to the black (65+) and beige (50-64) lines during weeks 10 - 17, it seems like it should follow this same trend in recent weeks as well. Yet this is not the case, and the fact that the red line is higher than the others in recent weeks makes this visualization pretty effective at "proving" its claim that young people make up recent Covid cases. However, I don't necessarily see a direct connection to parties and large gatherings from this data, and I think additional data would be needed to "prove" this part of its claim.
 
-Though some parts of the claim are questionable, the graph effectively demonstrates that the make up of the age groups contributing towards COVID cases has changed over time, with people aged 25-49 making up the the majority of recent cases, as opposed to a more equal contribution in previous weeks. The choice to simply show these three variables -- week number, case count, and age group -- display the desired trend cleanly, without cluttering the rest of the graph with frivolous information. Additionally, this graph generally seemed avoid the common visualization pitfalls that were pointed out in [Claus Wilke's book](https://clauswilke.com/dataviz/), and I liked many of the design choices that were made. Even the color choices were well chosen, as the color differentiation held up in the anomalous trichromacy and dichromatic views of a color blindness simulator. 
+Though some parts of the claim are questionable, the graph effectively demonstrates that the make up of the age groups contributing towards COVID cases has changed over time, with people aged 25-49 making up the the majority of recent cases, as opposed to a more equal contribution in previous weeks. The choice to simply show these three variables -- week number, case count, and age group -- display the desired trend cleanly, without cluttering the rest of the graph with frivolous information. Additionally, this graph generally seemed avoid the common visualization pitfalls that were pointed out in [Claus Wilke's book](https://clauswilke.com/dataviz/), and I liked many of the design choices that were made. Even the color choices were well chosen, as the color differentiation held up in the anomalous trichromacy and dichromatic views of a color blindness simulator.
 
-## Dataset
+Dataset
+-------
 
-The data I'll be working with comes from The European Surveillance System (TESSy), which is part of the European Center for Disease Prevention and Control (ECDC) -- a reliable source because it's a trusted government agency. This is supposedly the dataset that the WSJ authors were working with; however, I ran into some problems (described later) that lead me to believe we were using different datasets. I thought I was able to get the original data, as I obtained it from the ECDC website, but perhaps this wasn't the case. To get my data, I went to the "Enhanced Surveillance Data" tab of COVID-19 Situational Dashboard on [the ECDC's website](https://qap.ecdc.europa.eu/public/extensions/covid-19/covid-19-mobile.html#enhanced-surveillance-tab). From there, I madee sure that no filters were applied, and downloaded the data using the green arrow at the top right of the page. 
+The data I'll be working with comes from The European Surveillance System (TESSy), which is part of the European Center for Disease Prevention and Control (ECDC) -- a reliable source because it's a trusted government agency. This is supposedly the dataset that the WSJ authors were working with; however, I ran into some problems (described later) that lead me to believe we were using different datasets. I thought I was able to get the original data, as I obtained it from the ECDC website, but perhaps this wasn't the case. To get my data, I went to the "Enhanced Surveillance Data" tab of COVID-19 Situational Dashboard on [the ECDC's website](https://qap.ecdc.europa.eu/public/extensions/covid-19/covid-19-mobile.html#enhanced-surveillance-tab). From there, I madee sure that no filters were applied, and downloaded the data using the green arrow at the top right of the page.
 
 A statement on the ECDC's Copyright and Limited Reproduction Notices can be found on [their website](https://www.ecdc.europa.eu/en/copyright), but primarily, "information and documents made available on ECDC web pages... are public and may be reproduced, adapted and/or distributed, totally or in part... provided that ECDC is always acknowledged as the original source of the material." I was unable to find any specific names to credit for data processing, but some information on how they collect and process COVID data can be found on [their website](https://www.ecdc.europa.eu/en/covid-19/data-collection). In short, the "a team of epidemiologists screens up to 500 relevant sources to collect the latest figures" from each country, and this data is added to the database. To get the data I'm working with, they have aggregated individuals based on their shared characteristics (age, country, gender, other statuses) and reported the counts.
 
-```{r download-age-data}
+``` r
 data_filename_age <- "data/enhanced_surveillance_data.CSV"
 data_raw <- read.csv(data_filename_age)
 ```
 
-In this dataset, each row consists of each country's weekly cases and deaths, for a given age group, gender, hospitalization status, intensive care status, and outcome. In this data, there are `r nrow(data)` rows with `r ncol(data)` columns. Each of these columns is: `r names(data)`. This is a fairly *tidy* dataset, as it is long, not wide, and because each row only contains one observation. This makes it appropriate for the task at hand, and thankfully not much extreme tidying will be necessary.
+In this dataset, each row consists of each country's weekly cases and deaths, for a given age group, gender, hospitalization status, intensive care status, and outcome. In this data, there are rows with columns. Each of these columns is: . This is a fairly *tidy* dataset, as it is long, not wide, and because each row only contains one observation. This makes it appropriate for the task at hand, and thankfully not much extreme tidying will be necessary.
 
-
-## Wrangling
+Wrangling
+---------
 
 This data is close to the form I'll need it in for my graph. However, some minor changes are outlined below:
 
-- only include the 17 countries of interest  
-- change data type of `cases` to "int" (but recode '<=10' values first)  
-- change `Onset.week` to only the last two characters: the week number and reformat to number  
-- discard data before week 10  
-- remove unneeded columns  
-- join/bind(?) data based on shared information (e.g., Week 15 cases for 65+ should be summed)  
-- group all ages < 15 together  
-- group all ages > 65 together  
+-   only include the 17 countries of interest
+-   change data type of `cases` to "int" (but recode '&lt;=10' values first)
+-   change `Onset.week` to only the last two characters: the week number and reformat to number
+-   discard data before week 10
+-   remove unneeded columns
+-   join/bind(?) data based on shared information (e.g., Week 15 cases for 65+ should be summed)
+-   group all ages &lt; 15 together
+-   group all ages &gt; 65 together
 
-```{r exclude-countries}
+``` r
 # Exclude countries
 desired_countries <- c("Croatia", "Cyprus", "Czechia", "Denmark", "Estonia",
                        "Finland", "Germany", "Iceland", "Ireland", "Latvia",
@@ -71,7 +60,7 @@ data_countries <- data_raw %>%
   mutate(Reporting.country = factor(Reporting.country))
 ```
 
-```{r retype-cases}
+``` r
 # Retype cases
 data_format_cases <- data_countries %>%
   mutate(
@@ -81,7 +70,7 @@ data_format_cases <- data_countries %>%
   )
 ```
 
-```{r reformat-week}
+``` r
 # Reformat week
 substrRight <- function(x, n){
   substr(x, nchar(x)-n+1, nchar(x))
@@ -95,8 +84,8 @@ data_format_week <- data_format_cases %>%
     Week2020 = as.numeric(Week2020)
   )
 ```
-  
-```{r exclude-early-data}
+
+``` r
 # Exclude early data
 too_early <- c("2019-W51", "2020-W01", "2020-W03", "2020-W04", "2020-W05",
                "2020-W06", "2020-W07", "2020-W08", "2020-W09", "-")
@@ -105,13 +94,13 @@ data_exclude_early <- data_format_week %>%
   mutate(Onset.week = factor(Onset.week))
 ```
 
-```{r remove-columns}
+``` r
 # Remove unneeded columns
 data <- data_exclude_early %>%
   select(Week2020, Cases, Age.group)
 ```
 
-```{r join-sum-group-data}
+``` r
 # Sum and group (aggregate) relevant data
 aggregated_data <- data %>%
   arrange(Week2020, Age.group) %>%
@@ -121,12 +110,12 @@ aggregated_data <- data %>%
   distinct()
 ```
 
-
-## Visualization Replication
+Visualization Replication
+-------------------------
 
 After wrangling, the visualization attempted yielded the following graph:
 
-```{r plotting}
+``` r
 aggregated_data %>%
   ggplot(mapping = aes(x = Week2020, y = confcases, color = Age.group )) +
     geom_line() +
@@ -138,11 +127,13 @@ aggregated_data %>%
         plot.title = element_text(face = "bold"))
 ```
 
+![](datavis_files/figure-markdown_github/plotting-1.png)
+
 Unfortunately, after all these steps and attempting to recreate the visualization, the dataset appears to be missing some data. Despite checking the datasource again and trying to redownload the data with different options, I was unable to get a dataset that contained all this data. Because of this, from this point onward, I will be using a manually created dataset, with the structure and values I would expect to see. **This was approved by Prof. Arnold**, because I spent a lot of time rewrangling and trying to get the right data from other online sources to no avail. However, I think my manually created dataset is a good solution to this missing data problem, and my attempts above prove that I know how to wrangle data, use tidyverse/dplyr verbs, and think through the crucial data wrangling steps.
 
-### Manually creating dataset 
+### Manually creating dataset
 
-```{r remake-data}
+``` r
 df <- c()
 df$Week <- c(10:37, 10:37, 10:37, 10:37, 10:37)
 df$Age <- rep(c('25-49', '65+', '15-24', '50-64', '<15'), each=28)
@@ -179,7 +170,7 @@ df$Case <- c(0, 5000, 13000, 20000, 21000, 19000,
 df <- data.frame(df)
 ```
 
-```{r redo-graph, fig.width=6.6, fig.height=6}
+``` r
 ggplot(df, mapping = aes(x = Week, y = Case, color = Age )) +
   geom_line(size = 1.3) +
   scale_color_manual(values=c("#C13F3F", #red
@@ -203,16 +194,16 @@ ggplot(df, mapping = aes(x = Week, y = Case, color = Age )) +
         panel.grid.major.x = element_blank(),
         axis.text = element_text(size = 14)
         )
-  
 ```
 
+![](datavis_files/figure-markdown_github/redo-graph-1.png)
 
-
-## Alternative Designs
+Alternative Designs
+-------------------
 
 A design choice made here was the decision to use a *line graph*, showing cases over time. Alternatively, a side-by-side bar graph with `geom_col(position = 'dodge')` would've been made, with a set of 5 bars for each week, each individual bar representing an age group at the given week. This doesn't change the visual's ability to support its claim -- it still shows the same things. However, I am glad WSJ decided to use a line graph -- not only does it seem to be the COVID plotting convention, but it also is uncluttered, easy to read, and allows for simple comparisons. Yet, for the sake of demonstrating what this would look like, this visualization is produced below:
 
-```{r bar-graph}
+``` r
 ggplot(df, mapping = aes(x = Week, y = Case, fill = Age )) +
     geom_col(position = "dodge") +
     scale_fill_manual(values=c("#C13F3F", #red
@@ -231,9 +222,11 @@ ggplot(df, mapping = aes(x = Week, y = Case, fill = Age )) +
         plot.title = element_text(face = "bold"))
 ```
 
-When I posted the visualization for Discussion 2, one thing that was mentioned was the need for a colorblind-friendly color scheme. This should be fairly easy to implement, using the viridis color palette, `scale_fill_viridis()`. Again, this doesn't change the graph's ability to support its claim as it's almost identical. But, it might help the colorblind members of WSJ's readership. 
+![](datavis_files/figure-markdown_github/bar-graph-1.png)
 
-```{r viridis-graph}
+When I posted the visualization for Discussion 2, one thing that was mentioned was the need for a colorblind-friendly color scheme. This should be fairly easy to implement, using the viridis color palette, `scale_fill_viridis()`. Again, this doesn't change the graph's ability to support its claim as it's almost identical. But, it might help the colorblind members of WSJ's readership.
+
+``` r
 ggplot(df, mapping = aes(x = Week, y = Case, color = Age )) +
   geom_line() +
   theme_bw() +
@@ -245,21 +238,24 @@ ggplot(df, mapping = aes(x = Week, y = Case, color = Age )) +
   viridis::scale_color_viridis(discrete = TRUE)
 ```
 
+![](datavis_files/figure-markdown_github/viridis-graph-1.png)
+
 #### Discussion of other design choices:
 
 A design choice that the original visual made was was highlighting the "young people" category in red, and then 65+ category in black. I think this was intentional -- you can see as the weeks progress that the elderly, naturally at-risk population that we heard so much about at the beginning is responsible for less of the recent cases, and that the "young people" (aged 25-49) were on-par with 65+ at the beginning, but have *remained* alarmingly *(color: red)* high. This naturally draws your attention to the comparison of these two lines, which I think is really clever.
 
-Aside from color, a design choice that the original visualization made was the grouping of ages. I was initially skeptical of the seemingly-odd groupings: why consider "young people" to be those aged 25 to 49 (25 years), while choosing to split up the other groups the way they are (into groups of 14, 10, 15...)? However, once I downloaded the data itself, I realized that these groupings were preselected by ECDC, and that this was the only form that the data had came in. Thus, it wasn't the WSJ's fault that the groupings are a bit odd. I was excited to explore the effect of more evenly spaced groupings, but unfortunately, this wouldn't be possible. An alternative design choice with the data at hand, though, would be to divide the case numbers by the total population in this age range. This would allow for a different view of the data, and should be fairly easy to look up (though it might be a bit tedious to do so for each of the 17 countries...). 
+Aside from color, a design choice that the original visualization made was the grouping of ages. I was initially skeptical of the seemingly-odd groupings: why consider "young people" to be those aged 25 to 49 (25 years), while choosing to split up the other groups the way they are (into groups of 14, 10, 15...)? However, once I downloaded the data itself, I realized that these groupings were preselected by ECDC, and that this was the only form that the data had came in. Thus, it wasn't the WSJ's fault that the groupings are a bit odd. I was excited to explore the effect of more evenly spaced groupings, but unfortunately, this wouldn't be possible. An alternative design choice with the data at hand, though, would be to divide the case numbers by the total population in this age range. This would allow for a different view of the data, and should be fairly easy to look up (though it might be a bit tedious to do so for each of the 17 countries...).
 
 One last design choice that I'll mention here is that the y-axis is unlabelled. Joe mentioned this as a response to my forum post, and said that it "makes it difficult to understand upon a quick glance." I initially disagreed with him -- I thought the lack of a y-axis label made the graph look cleaner and I figured it was unnecessary. The title already includes the basics of the y-label: "Confirmed Covid-19 cases." With this title, the only thing missing from a y-axis label would be the units. The question then is: should the y units be included or not? Upon closer inspection, I'm realizing that either way would be valuable. If the goal is to simply compare COVID cases between age groups over time, then it's not imperative that the units of cases be reported. Yet, if we want as much clarity and insight (even unrelated to the direct aim of the graph) as possible, then I think it'd be beneficial to include a units label. Also, as Joe seemed to imply, some people don't read titles and skip directly to the graph itself, looking for axis labels to provide understanding. Because of this, it is maybe a better idea to include what is being measured (confirmed COVID-19 cases) on the axis, even if it appears a little more cluttered.
 
-## Summary
+Summary
+-------
 
 After having undergone the entire proceess, my understanding of the article's claim has remained unchanged. I still agree that the number of recent COVID cases among 25-49 year-olds is proportially higher than it was during the "first wave" of COVID. This trend was seen despite the different graphs using this dataset.
 
 Although my first replication was unfruitful, I think the replication with my fake datset was pretty good. I tried to get as close as I could to the WSJ visualization, and I think I did that pretty well. Obviously, my replication isn't the same due to the fact that it uses completely different data (my manual dataset instead of real ECDC/TESSy data), but besides the data differences, I tried to replicate design similarities, and I came close to this.
 
-My alternative designs were also pretty successful -- they looked the way I wanted them to, and demonstrated how changing small aspects of the visualization didn't affect the ability of this data to support the claim. 
+My alternative designs were also pretty successful -- they looked the way I wanted them to, and demonstrated how changing small aspects of the visualization didn't affect the ability of this data to support the claim.
 
 Some potential ethical questions that arise from this process are related to the context of this graph. Yes, it *does* appear that Europe's recent COVID cases are made up of a different age demographic than the first wave -- with this new wave involving a higher proportion of those aged 25-49. However, this article's assertion that these numbers were due to partying and public events attended by this younger demographic may be a bit of a stretch. I think this article's focus on partying and alcohol consumption being the primary reasons why young people are being infected may be overstepping the bounds of this data. Is it possible that young people are working in jobs that involve more interactions with other people? Are there other reasons (beyond parties / alcohol) that younger people make up more of the recent positive cases? I think there is more to be considered, so I was disspointed that they used only this data to support their claim -- I think it would be better if the article included supporting evidence on the number of people who got infected from parties, etc. Additionally, I'd want to know what the testing situation was like in the earlier weeks compared to the more recent weeks. If the way that tests were distributed / used was different at the beginning than now, I'd wonder what effect that has on the numbers as well.
 
@@ -268,42 +264,3 @@ The major preessing question I have about this data and visualization is simply,
 I honestly don't see this extending into a final project. I'd personally love to explore a different dataset for the final project. Besides that, though, I don't think much predictive modelling can be done from the data used here, so I'd say this pretty much seems like a dead end.
 
 I feel good about this overall experience; besides the overall frustration with missing data, I generally enjoyed this project.
-
-
-```{r plots-count-week, fig.width=4, fig.height=4, eval=F, include=F}
-## Trying to fix my "missing data" problem...
-#### Recreate Prof. Arnold's Bar Graph
-#Alright, so these are the names of my datasets as I go through each step in my wrangling workflow: data_raw, data_countries, data_format_cases, data_format_week, data_exclude_early, data
-#I'll try to recreate Prof. Arnold's plot he sent me:
-
-
-make_arnold_plot <- function(dataset){
-  dataset %>%
-    filter(Cases != 0) %>%
-    group_by(Onset.week) %>%
-    count() %>%
-    ggplot(aes(y = Onset.week, x = n)) +
-      geom_col() +
-      labs(title = deparse(substitute(dataset))) +
-      theme(axis.text.y = element_blank())
-}
-p1 <- print(make_arnold_plot(data_raw))
-p2 <- print(make_arnold_plot(data_countries))
-p3 <- print(make_arnold_plot(data_format_cases))
-p4 <- print(make_arnold_plot(data_format_week))
-p5 <- print(make_arnold_plot(data_exclude_early))
-p6 <- data %>%
-      filter(Cases != 0) %>%
-      mutate(Week2020 = as.factor(Week2020)) %>%
-      group_by(Week2020) %>%
-      count() %>%
-      ggplot(aes(y = Week2020, x = n)) +
-        geom_col() +
-        labs(title = deparse(substitute(data))) #+
-        #theme(axis.text.y = element_blank())
-gridExtra::grid.arrange(p1,p2,p3,p4,p5,p6)
-#None of these seems to match what his plot looked like... hmmm...
-```
-
-
-
